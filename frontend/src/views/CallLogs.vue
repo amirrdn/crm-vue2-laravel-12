@@ -111,7 +111,7 @@ export default {
   data() {
     return {
       searchQuery: '',
-      selectedContact: '',
+      selectedContact: this.$route.query.contact_id || '',
       startDate: '',
       endDate: '',
       contacts: [],
@@ -124,20 +124,17 @@ export default {
     filteredCallLogs() {
       let logs = this.callLogs
 
-      // Filter by contact
       if (this.selectedContact) {
-        logs = logs.filter(log => log.contact_id === parseInt(this.selectedContact))
+        logs = logs.filter(log => log.contact_id === Number(this.selectedContact))
       }
 
-      // Filter by date range
       if (this.startDate) {
-        logs = logs.filter(log => moment(log.started_at).isSameOrAfter(this.startDate, 'day'))
+        logs = logs.filter(log => moment(log.started_at).isSameOrAfter(moment(this.startDate), 'day'))
       }
       if (this.endDate) {
-        logs = logs.filter(log => moment(log.started_at).isSameOrBefore(this.endDate, 'day'))
+        logs = logs.filter(log => moment(log.started_at).isSameOrBefore(moment(this.endDate), 'day'))
       }
 
-      // Filter by search query
       if (this.searchQuery) {
         const query = this.searchQuery.toLowerCase()
         logs = logs.filter(log => 
@@ -151,7 +148,11 @@ export default {
     }
   },
   created() {
-    this.fetchCallLogs()
+    const filters = {}
+    if (this.$route.query.contact_id) {
+      filters.contact_id = Number(this.$route.query.contact_id)
+    }
+    this.fetchCallLogs(filters)
     this.fetchContacts()
     this.debouncedSearch = debounce(this.handleSearch, 300)
   },
@@ -186,13 +187,12 @@ export default {
     },
     handleFilterChange() {
       const filters = {}
-      if (this.selectedContact) filters.contact_id = this.selectedContact
-      if (this.startDate) filters.startDate = this.startDate
-      if (this.endDate) filters.endDate = this.endDate
+      if (this.selectedContact) filters.contact_id = Number(this.selectedContact)
+      if (this.startDate) filters.startDate = moment(this.startDate).format('YYYY-MM-DD')
+      if (this.endDate) filters.endDate = moment(this.endDate).format('YYYY-MM-DD')
       this.fetchCallLogs(filters)
     },
     handleSearch() {
-      // Search is handled in computed property
       this.filteredLogs = this.filteredCallLogs
     }
   }

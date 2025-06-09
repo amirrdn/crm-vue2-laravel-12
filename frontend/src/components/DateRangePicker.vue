@@ -111,7 +111,6 @@
         this.dateRange = this.isValidDateRange(range) ? range : null
       },
       handleDateChange() {
-        // Lakukan sesuatu dengan dateRange, seperti emit ke parent
         this.$emit('change', this.dateRange)
       },
       disabledDate(time) {
@@ -142,7 +141,6 @@
         this.$router.replace({ query: {} }).catch(() => {})
       }
   
-      // Set default jika tidak ada
       if (!this.dateRange) {
         const start = moment().startOf('month').format('YYYY-MM-DD')
         const end = moment().endOf('month').format('YYYY-MM-DD')
